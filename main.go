@@ -3,11 +3,15 @@ package main
 import (
 	// "fmt"
 	// "io"
+	"api/handlers"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/google/uuid"
@@ -47,21 +51,6 @@ func returnSingleArticle(w http.ResponseWriter, r *http.Request) {
 		if article.Id == key {
 			json.NewEncoder(w).Encode(article)
 		}
-	}
-}
-
-func handleRequests() {
-	myRouter := mux.NewRouter().StrictSlash(true)
-
-	myRouter.HandleFunc("/hello", homePage)
-	myRouter.HandleFunc("/a", returnAllArticles)
-	myRouter.HandleFunc("/a/{id}", returnSingleArticle)
-	myRouter.HandleFunc("/q", QueryHandler)
-	myRouter.HandleFunc("/r", handleRest)
-
-	err := http.ListenAndServeTLS(":4443", "server.crt", "server.key", myRouter)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
 	}
 }
 
@@ -154,4 +143,37 @@ func main() {
 		Article{Id: "2", Title: "Hello 2", Desc: "Article Description", Content: "Article Content"},
 	}
 	handleRequests()
+}
+
+func handleRequests() {
+	l := log.New(os.Stdout, "product-api ", log.LstdFlags)
+	hw := handlers.NewHelloWorld(l)
+
+	sm := http.NewServeMux()
+	sm.Handle("/", hw)
+
+	s := &http.Server{
+		Addr:         ":44444",
+		Handler:      sm,
+		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  1 * time.Second,
+		WriteTimeout: 1 * time.Second,
+	}
+
+	go func() {
+		err := s.ListenAndServe()
+		if err != nil {
+			l.Fatal(err)
+		}
+	}()
+
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, os.Interrupt)
+	signal.Notify(sigChan, os.Kill)
+
+	sig := <-sigChan
+	l.Println("Receive terminate, graceful shutdown ", sig)
+
+	txn, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	s.Shutdown(txn)
 }
