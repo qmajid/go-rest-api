@@ -151,6 +151,10 @@ func handleRequests() {
 
 	sm := http.NewServeMux()
 	sm.Handle("/", hw)
+	// sm.Handle("/a", returnAllArticles)
+	// sm.Handle("/a/{id}", returnSingleArticle)
+	// sm.Handle("/q", QueryHandler)
+	// sm.Handle("/r", handleRest)
 
 	s := &http.Server{
 		Addr:         ":44444",
