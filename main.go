@@ -148,9 +148,11 @@ func main() {
 func handleRequests() {
 	l := log.New(os.Stdout, "product-api ", log.LstdFlags)
 	hw := handlers.NewHelloWorld(l)
+	hp := handlers.NewProducts(l)
 
 	sm := http.NewServeMux()
 	sm.Handle("/", hw)
+	sm.Handle("/p", hp)
 	// sm.Handle("/a", returnAllArticles)
 	// sm.Handle("/a/{id}", returnSingleArticle)
 	// sm.Handle("/q", QueryHandler)
