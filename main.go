@@ -145,6 +145,9 @@ func main() {
 	handleRequests()
 }
 
+//curl -XPOST -d @product.json -v http://localhost:44444/p | jq
+//curl -v http://localhost:44444/p | jq
+//using testify package for test rest app
 func handleRequests() {
 	l := log.New(os.Stdout, "product-api ", log.LstdFlags)
 	hw := handlers.NewHelloWorld(l)
