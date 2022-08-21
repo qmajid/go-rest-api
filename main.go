@@ -156,6 +156,7 @@ func handleRequests() {
 	sm := http.NewServeMux()
 	sm.Handle("/", hw)
 	sm.Handle("/p", hp)
+	//putRouter.Use(hp.MiddlewareValidateProduct) //sample for use middleware in episode_6 branch
 	// sm.Handle("/a", returnAllArticles)
 	// sm.Handle("/a/{id}", returnSingleArticle)
 	// sm.Handle("/q", QueryHandler)
